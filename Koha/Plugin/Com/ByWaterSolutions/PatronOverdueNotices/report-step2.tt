@@ -1,0 +1,26 @@
+<html>
+    <head>
+        <style>
+            @media all {
+                .page-break { display: none; }
+            }
+
+            @media print {
+                .page-break { display: block; page-break-before: always; }
+            }
+        </style>
+    </head>
+    <body>
+        [% FOREACH n IN notices %]
+            [% IF n.is_html %]
+                [% n.content %]
+            [% ELSE %]
+                <pre>[% n.content %]</pre>
+            [% END %]
+
+            [% UNLESS loop.last %]
+                <span class="page-break"></span>
+            [% END %]
+        [% END %]
+    </body>
+</html>

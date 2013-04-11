@@ -1,0 +1,113 @@
+[% USE Branches %]
+[% USE Categories %]
+[% INCLUDE 'doc-head-open.inc' %]
+ <title>Koha: Plugins: Patron overdue notices</title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+<body>
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'cat-search.inc' %]
+
+<div id="breadcrumbs"><a href="/cgi-bin/koha/mainpage.pl">Home</a> &rsaquo; <a href="/cgi-bin/koha/plugins/plugins-home.pl">Plugins</a> &rsaquo; Patron overdue notices</div>
+
+<div id="doc" class="yui-t7">
+    <div id="bd">
+        <div id="yui-main">
+            <div class="yui-b">
+                <h1>Print overdue notices</h1>
+
+                <form method="post">
+                    <input type="hidden" name="class" value="[% CLASS %]"/>
+                    <input type="hidden" name="method" value="[% METHOD %]"/>
+
+                    <fieldset class="rows">
+                        <legend>Library</legend>
+
+                        <ol>
+                            <li>
+                                <label for="branchcode">Library:</label>
+                                <select name="branchcode" id="branchcode">
+                                    <option value="">All libraries</option>
+                                    [% FOREACH b IN Branches.all %]
+                                        <option value="[% b.branchcode %]">[% b.branchname %]</option>
+                                    [% END %]
+                                </select>
+                            </li>
+                        </ol>
+                    </fieldset>
+
+                    <fieldset class="rows">
+                        <legend>Patron categories</legend>
+
+                        <ol>
+                            [% FOREACH c IN Categories.all %]
+                                <li>
+                                    <label>[% c.description %]:</label>
+                                    <input type="checkbox" name="categorycode" value="[% c.categorycode %]">
+                                </li>
+                            [% END %]
+                        </ol>
+                    </fieldset>
+
+                    <fieldset class="rows">
+                        <legend>Date due range</legend>
+
+                        <ol>
+                            <li>
+                                <label>From:</label>
+                                <input type="text" name="days_from" id="days_from" />
+                                <span class="hint">days ago</span>
+                            </li>
+                            <li>
+                                <label>To:</label>
+                                <input type="text" name="days_to" id="days_to" />
+                                <span class="hint">days ago</span>
+                            </li>
+                        </ol>
+                    </fieldset>
+
+                    <fieldset class="rows">
+                        <legend>Specific patron</legend>
+
+                        <ol>
+                            <li>
+                                <label>Cardnumber:</label>
+                                <input type="text" name="cardnumber" id="cardnumber" />
+                            </li>
+                            <li>
+                                <label>Patron ID:</label>
+                                <input type="text" name="borrowernumber" id="borrowernumber" />
+                            </li>
+                        </ol>
+                    </fieldset>
+
+                    [% PERL %]
+                        use C4::Letters qw(GetLetters);
+                        my $notices = GetLetters( { module => 'circulation' } );
+                        $stash->set( notices => $notices );
+                    [% END %]
+                    <fieldset class="rows">
+                        <legend>Select notice</legend>
+
+                        <ol>
+                            <li>
+                                <label for="notice_code">Notice:</label>
+                                <select name="notice_code" id="notice_code">
+                                    [% FOREACH n IN notices %]
+                                        <option value="[% n.code %]">[% n.name %]</option>
+                                    [% END %]
+                                </select>
+                            </li>
+                        </ol>
+                    </fieldset>
+
+                    <fieldset class="action">
+                        <input type="submit" name="submit" value="Submit" />
+                    </fieldset>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+[% INCLUDE 'intranet-bottom.inc' %]
