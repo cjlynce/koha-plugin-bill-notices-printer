@@ -110,19 +110,25 @@ sub report_step2 {
 
     my $dbh   = C4::Context->dbh();
     my $query = qq{
-        SELECT biblio.*, items.*, issues.*, biblioitems.itemtype, branches.branchname, borrowers.branchcode AS patron_branchcode
+        SELECT biblio.*, items.*, issues.*, biblioitems.itemtype, branches.branchname, borrowers.branchcode AS patron_branchcode,
+               borrowers.cardnumber, borrowers.surname, borrowers.firstname, borrowers.email, borrowers.phone, borrowers.borrowernumber,borrowers.cardnumber,borrowers.address,borrowers.address2,borrowers.city,borrowers.zipcode
         FROM issues, items, biblio, biblioitems, branches, borrowers
         WHERE items.itemnumber=issues.itemnumber
           AND biblio.biblionumber   = items.biblionumber
           AND branches.branchcode   = items.homebranch
           AND biblio.biblionumber   = biblioitems.biblionumber
           AND borrowers.borrowernumber = issues.borrowernumber
-          AND date_due BETWEEN DATE_SUB(CURDATE(), INTERVAL ? DAY) AND DATE_SUB(CURDATE(), INTERVAL ? DAY)
     };
 
     my @params;
-    push( @params, $days_from );
-    push( @params, $days_to );
+
+    if ( $days_from && $days_to ) {
+        $query .= qq{ AND date_due BETWEEN DATE_SUB(CURDATE(), INTERVAL ? DAY) AND DATE_SUB(CURDATE(), INTERVAL ? DAY) };
+        push( @params, $days_from );
+        push( @params, $days_to );
+    } else {
+        $query .= qq{ AND date_due < NOW() };
+    }
 
     if ( $branchcode ) {
         $query .= qq{ AND issues.branchcode = ? };
@@ -142,11 +148,16 @@ sub report_step2 {
         push( @params, $patron_cardnumber );
     }
 
+    $query .= qq{ ORDER BY surname, firstname, cardnumber };
+
     my $sth = $dbh->prepare($query);
     $sth->execute(@params);
 
     my $overdues;
+    my @rows;
     while ( my $row = $sth->fetchrow_hashref ) {
+        push( @rows, $row );
+
         my $borrowernumber = $row->{borrowernumber};
         $overdues->{$borrowernumber} ||= [];
         push( @{ $overdues->{$borrowernumber} }, $row );
@@ -173,7 +184,11 @@ sub report_step2 {
     }
 
     my $template = $self->get_template( { file => 'report-step2.tt' } );
-    $template->param( notices => \@notices );
+    $template->param(
+        notices  => \@notices,
+        rows     => \@rows,
+        overdues => $overdues,
+    );
 
     print $cgi->header();
     print $template->output();

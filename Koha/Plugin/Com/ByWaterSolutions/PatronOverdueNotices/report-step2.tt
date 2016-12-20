@@ -3,14 +3,81 @@
         <style>
             @media all {
                 .page-break { display: none; }
+
+                table {
+                  border-collapse: collapse;
+                  width: 100%;
+                }
+                th, td {
+                  padding: 0.25rem;
+                  text-align: left;
+                  border: 1px solid #ccc;
+                }
+                tbody tr:nth-child(odd) {
+                  background: #eee;
+                }
             }
 
             @media print {
+                .noprint { display: none !important; }
                 .page-break { display: block; page-break-before: always; }
             }
         </style>
     </head>
     <body>
+
+        <table class="noprint">
+            <thead>
+                <tr>
+                    <th colspan="99">Summary</th>
+                </tr>
+
+                <tr>
+                    <th>Borrowernumber</th>
+                    <th>Cardnumber</td>
+                    <th>Surname</th>
+                    <th>Firstname</th>
+                    <th>Email</th>
+                    <th>Title</th>
+                    <th>Address</th>
+                    <th>Address 2</th>
+                    <th>City</th>
+                    <th>Zip Code</th>
+                    <th>Title</th>
+                    <th>Barcode</th>
+                    <th>Call Number</th>
+                    <th>Price</th>
+                    <th>Library</th>
+                    <th>Date Due</th>
+                    <th>Date Issued</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                [% FOREACH r IN rows %]
+                    <tr>
+                        <td>[% r.borrowernumber %]</td>
+                        <td>[% r.cardnumber %]</td>
+                        <td>[% r.surname %]</td>
+                        <td>[% r.firstname %]</td>
+                        <td>[% r.email %]</td>
+                        <td>[% r.title %]</td>
+                        <td>[% r.address %]</td>
+                        <td>[% r.address2 %]</td>
+                        <td>[% r.city %]</td>
+                        <td>[% r.zipcode %]</td>
+                        <td>[% r.title %]</td>
+                        <td>[% r.barcode %]</td>
+                        <td>[% r.itemcallnumber %]</td>
+                        <td>[% r.price %]</td>
+                        <td>[% r.branchcode %]</td>
+                        <td>[% r.duedate %]</td>
+                        <td>[% r.issuedate %]</td>
+                    </tr>
+                [% END %]
+            </tbody>
+        </table>
+
         [% FOREACH n IN notices %]
             [% IF n.is_html %]
                 [% n.content %]
