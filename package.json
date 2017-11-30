@@ -1,7 +1,8 @@
 {
     "name": "koha-plugin-overdue-notices-printer",
     "version": "1.1.0",
-    "description": "Koha CoverFlow Plugin",
+    "previous_version": "1.1.0",
+    "description": "Koha Overdue Notices Printer Plugin",
     "main": "index.js",
     "devDependencies": {
         "gulp": "^3.9.1",
