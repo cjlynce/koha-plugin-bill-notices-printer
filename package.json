@@ -1,27 +1,30 @@
 {
-    "name": "koha-plugin-overdue-notices-printer",
-    "version": "1.1.0",
-    "previous_version": "1.1.0",
-    "description": "Koha Overdue Notices Printer Plugin",
-    "main": "index.js",
-    "devDependencies": {
-        "gulp": "^3.9.1",
-        "gulp-cli": "^1.2.2",
-        "gulp-github-release": "^1.1.5",
-        "gulp-replace": "^0.5.4",
-        "gulp-run": "^1.7.1"
-    },
-    "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/bywatersolutions/koha-plugin-overdue-notices-printer.git"
-    },
-    "author": "Kyle M Hall <kyle@bywatersolutions.com>",
-    "license": "GPL-3.0",
-    "bugs": {
-        "url": "https://github.com/bywatersolutions/koha-plugin-overdue-notices-printer/issues"
-    },
-    "homepage": "https://github.com/bywatersolutions/koha-plugin-overdue-notices-printer#readme"
+  "name": "koha-plugin-overdue-notices-printer",
+  "version": "1.1.1",
+  "previous_version": "1.1.0",
+  "description": "Koha Overdue Notices Printer Plugin",
+  "main": "index.js",
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-cli": "^1.2.2",
+    "gulp-github-release": "^1.1.5",
+    "gulp-replace": "^0.5.4",
+    "gulp-run": "^1.7.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bywatersolutions/koha-plugin-overdue-notices-printer.git"
+  },
+  "author": "Kyle M Hall <kyle@bywatersolutions.com>",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/bywatersolutions/koha-plugin-overdue-notices-printer/issues"
+  },
+  "homepage": "https://github.com/bywatersolutions/koha-plugin-overdue-notices-printer#readme",
+  "dependencies": {
+    "jsonfile": "^4.0.0"
+  }
 }
