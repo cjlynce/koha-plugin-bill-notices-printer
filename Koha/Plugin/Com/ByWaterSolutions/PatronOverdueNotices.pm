@@ -97,6 +97,8 @@ sub report_step2 {
     my $branchcode        = scalar $cgi->param('branchcode');
     my $days_from         = scalar $cgi->param('days_from');
     my $days_to           = scalar $cgi->param('days_to');
+    my $fines_from        = scalar $cgi->param('fines_from');
+    my $fines_to          = scalar $cgi->param('fines_to');
     my $patron_cardnumber = scalar $cgi->param('cardnumber');
     my $patron_id         = scalar $cgi->param('borrowernumber');
     my $notice_code       = scalar $cgi->param('notice_code');
@@ -111,8 +113,9 @@ sub report_step2 {
     my $dbh   = C4::Context->dbh();
     my $query = qq{
         SELECT biblio.*, items.*, issues.*, biblioitems.itemtype, branches.branchname, borrowers.branchcode AS patron_branchcode,
-               borrowers.cardnumber, borrowers.surname, borrowers.firstname, borrowers.email, borrowers.phone, borrowers.borrowernumber,borrowers.cardnumber,borrowers.address,borrowers.address2,borrowers.city,borrowers.zipcode
+               borrowers.cardnumber, borrowers.surname, borrowers.firstname, borrowers.email, borrowers.phone, borrowers.borrowernumber,borrowers.cardnumber,borrowers.address,borrowers.address2,borrowers.city,borrowers.zipcode, a.amountoutstanding as owed
         FROM issues, items, biblio, biblioitems, branches, borrowers
+        LEFT JOIN accountlines a USING (borrowernumber)
         WHERE items.itemnumber=issues.itemnumber
           AND biblio.biblionumber   = items.biblionumber
           AND branches.branchcode   = items.homebranch
@@ -147,7 +150,14 @@ sub report_step2 {
         $query .= qq{ AND borrowers.cardnumber = ? };
         push( @params, $patron_cardnumber );
     }
-
+    if ( $fines_from ) {
+        $query .= qq{ AND a.amountoutstanding >= ? };
+        push( @params, $fines_from );
+    }
+    if ( $fines_to ) {
+        $query .= qq{ AND a.amountoutstanding <= ?};
+        push( @params, $fines_to );
+    }
     $query .= qq{ ORDER BY surname, firstname, cardnumber };
 
     my $sth = $dbh->prepare($query);

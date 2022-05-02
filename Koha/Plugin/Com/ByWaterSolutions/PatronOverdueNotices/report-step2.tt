@@ -50,6 +50,7 @@
                     <th>Library</th>
                     <th>Date Due</th>
                     <th>Date Issued</th>
+                    <th>Total Owed</th>
                 </tr>
             </thead>
 
@@ -73,6 +74,7 @@
                         <td>[% r.branchcode %]</td>
                         <td>[% r.duedate %]</td>
                         <td>[% r.issuedate %]</td>
+                        <td>[% r.owed %]</td>
                     </tr>
                 [% END %]
             </tbody>

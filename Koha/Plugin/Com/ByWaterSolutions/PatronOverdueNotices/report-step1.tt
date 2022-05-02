@@ -67,6 +67,21 @@
                     </fieldset>
 
                     <fieldset class="rows">
+                        <legend>Total fine amount</legend>
+
+                        <ol>
+                            <li>
+                                <label>Not less than:</label>
+                                <input type="text" name="fines_from" id="fines_from" />
+                            </li>
+                            <li>
+                                <label>Not more than:</label>
+                                <input type="text" name="fines_to" id="fines_to" />
+                            </li>
+                        </ol>
+                    </fieldset>
+
+                    <fieldset class="rows">
                         <legend>Specific patron</legend>
 
                         <ol>
