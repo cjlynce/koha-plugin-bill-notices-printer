@@ -102,6 +102,7 @@ sub report_step2 {
     my $patron_cardnumber = scalar $cgi->param('cardnumber');
     my $patron_id         = scalar $cgi->param('borrowernumber');
     my $notice_code       = scalar $cgi->param('notice_code');
+    my $branch_match      = scalar $cgi->param('branch_match');
     my @categorycodes     = $cgi->multi_param('categorycode');
 
     ( $days_from, $days_to ) = ( $days_to, $days_from )
@@ -118,10 +119,13 @@ sub report_step2 {
         LEFT JOIN accountlines a USING (borrowernumber)
         WHERE items.itemnumber=issues.itemnumber
           AND biblio.biblionumber   = items.biblionumber
-          AND branches.branchcode   = items.homebranch
           AND biblio.biblionumber   = biblioitems.biblionumber
           AND borrowers.borrowernumber = issues.borrowernumber
     };
+
+    $query .= qq{
+          AND branches.branchcode = items.$branch_match
+    } if $branch_match ne 'none';
 
     my @params;
 
