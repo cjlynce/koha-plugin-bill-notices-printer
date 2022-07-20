@@ -151,15 +151,17 @@ sub report_step2 {
         $query .= qq{ AND borrowers.cardnumber = ? };
         push( @params, $patron_cardnumber );
     }
+
     if ( $fines_from ) {
-        $query .= qq{ AND a.amountoutstanding >= ? };
+        $query .= qq{ AND SUM(a.amountoutstanding) >= ? };
         push( @params, $fines_from );
     }
+
     if ( $fines_to ) {
-        $query .= qq{ AND a.amountoutstanding <= ?};
+        $query .= qq{ AND SUM(a.amountoutstanding) <= ?};
         push( @params, $fines_to );
     }
-    $query .= qq{ ORDER BY surname, firstname, cardnumber };
+    $query .= qq{ GROUP BY issues.issue_id ORDER BY surname, firstname, cardnumber };
 
     my $sth = $dbh->prepare($query);
     $sth->execute(@params);
