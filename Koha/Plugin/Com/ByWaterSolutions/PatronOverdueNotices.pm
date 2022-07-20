@@ -102,7 +102,7 @@ sub report_step2 {
     my $patron_cardnumber = scalar $cgi->param('cardnumber');
     my $patron_id         = scalar $cgi->param('borrowernumber');
     my $notice_code       = scalar $cgi->param('notice_code');
-    my $branch_match      = scalar $cgi->param('branch_match');
+    my $filter_issues     = scalar $cgi->param('filter_issues');
     my @categorycodes     = $cgi->multi_param('categorycode');
 
     ( $days_from, $days_to ) = ( $days_to, $days_from )
@@ -113,19 +113,16 @@ sub report_step2 {
 
     my $dbh   = C4::Context->dbh();
     my $query = qq{
-        SELECT biblio.*, items.*, issues.*, biblioitems.itemtype, branches.branchname, borrowers.branchcode AS patron_branchcode,
+        SELECT biblio.*, items.*, issues.*, biblioitems.itemtype, borrowers.branchcode AS patron_branchcode,
                borrowers.cardnumber, borrowers.surname, borrowers.firstname, borrowers.email, borrowers.phone, borrowers.borrowernumber,borrowers.cardnumber,borrowers.address,borrowers.address2,borrowers.city,borrowers.zipcode, a.amountoutstanding as owed
-        FROM issues, items, biblio, biblioitems, branches, borrowers
-        LEFT JOIN accountlines a USING (borrowernumber)
-        WHERE items.itemnumber=issues.itemnumber
-          AND biblio.biblionumber   = items.biblionumber
-          AND biblio.biblionumber   = biblioitems.biblionumber
-          AND borrowers.borrowernumber = issues.borrowernumber
+        FROM issues
+        LEFT JOIN accountlines a USING ( borrowernumber )
+        LEFT JOIN items ON ( issues.itemnumber = items.itemnumber )
+        LEFT JOIN biblio USING ( biblionumber )
+        LEFT JOIN biblioitems USING ( biblioitemnumber )
+        LEFT JOIN borrowers USING ( borrowernumber )
+        WHERE 1
     };
-
-    $query .= qq{
-          AND branches.branchcode = items.$branch_match
-    } if $branch_match ne 'none';
 
     my @params;
 
@@ -137,7 +134,7 @@ sub report_step2 {
         $query .= qq{ AND date_due < NOW() };
     }
 
-    if ( $branchcode ) {
+    if ( $branchcode && $filter_issues ) {
         $query .= qq{ AND issues.branchcode = ? };
         push( @params, $branchcode );
     }

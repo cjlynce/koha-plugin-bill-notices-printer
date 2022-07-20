@@ -35,12 +35,12 @@
                             </li>
 
                             <li>
-                                <label for="branch_match">Patron library match:</label>
-                                <select name="branch_match" id="branch_match">
-                                    <option value="none">No limit</option>
-                                    <option value="homebranch">Limit the issues to those items with a home branch matching the patrons branch</option>
-                                    <option value="holdingbranch">Limit the issues to those items with a holding branch matching the patrons branch</option>
+                                <label for="filter_issues">Limit checkouts</label>
+                                <select name="filter_issues" id="filter_issues">
+                                    <option value="1">Yes</option>
+                                    <option value="0">No</option>
                                 </select>
+                                <span class="hint">If yes, only overdues checked out at the selected library will be displayed.</span>
                             </li>
                         </ol>
                     </fieldset>
