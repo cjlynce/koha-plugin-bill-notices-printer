@@ -35,6 +35,14 @@
                             </li>
 
                             <li>
+                                <label for="branchcode_field">Library field:</label>
+                                <select name="branchcode_field" id="branchcode_field">
+                                    <option value="holdingbranch">Holding library</option>
+                                    <option value="homebranch">Home library</option>
+                                </select>
+                            </li>
+
+                            <li>
                                 <label for="filter_issues">Limit checkouts</label>
                                 <select name="filter_issues" id="filter_issues">
                                     <option value="1">Yes</option>

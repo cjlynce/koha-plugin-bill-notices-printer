@@ -96,6 +96,7 @@ sub report_step2 {
     my $cgi = $self->{'cgi'};
 
     my $branchcode        = scalar $cgi->param('branchcode');
+    my $branchcode_field  = scalar $cgi->param('branchcode_field');
     my $days_from         = scalar $cgi->param('days_from');
     my $days_to           = scalar $cgi->param('days_to');
     my $fines_from        = scalar $cgi->param('fines_from');
@@ -136,7 +137,7 @@ sub report_step2 {
     }
 
     if ( $branchcode && $filter_issues ) {
-        $query .= qq{ AND issues.branchcode = ? };
+        $query .= qq{ AND items.$branchcode_field = ? };
         push( @params, $branchcode );
     }
     ## FIXME else limit by patron branchcode?
