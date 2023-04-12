@@ -138,6 +138,7 @@ sub report_step2 {
         $query .= qq{ AND issues.branchcode = ? };
         push( @params, $branchcode );
     }
+    ## FIXME else limit by patron branchcode?
 
     if (@categorycodes) {
         $query .= qq{ AND borrowers.categorycode IN ( $categorycodes ) };
