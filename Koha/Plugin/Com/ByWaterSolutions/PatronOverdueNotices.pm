@@ -13,6 +13,7 @@ use open qw(:utf8);
 
 ## Here we set our plugin version
 our $VERSION = "{VERSION}";
+our $MINIMUM_VERSION = "{MINIMUM_VERSION}";
 
 ## Here is our metadata, some keys are required, some are optional
 our $metadata = {
@@ -20,8 +21,8 @@ our $metadata = {
     author          => 'Kyle M Hall',
     description     => 'Generate and print overdue notices for patrons.',
     date_authored   => '2016-06-20',
-    date_updated    => '2016-06-20',
-    minimum_version => '3.2000000',
+    date_updated    => "1900-01-01",
+    minimum_version => $MINIMUM_VERSION,
     maximum_version => undef,
     version         => $VERSION,
 };
