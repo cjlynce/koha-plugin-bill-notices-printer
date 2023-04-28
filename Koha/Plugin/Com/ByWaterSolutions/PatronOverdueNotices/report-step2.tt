@@ -74,7 +74,7 @@
                         <td>[% r.branchcode %]</td>
                         <td>[% r.duedate %]</td>
                         <td>[% r.issuedate %]</td>
-                        <td>[% r.owed %]</td>
+                        <td>[% r.amountoutstanding %]</td>
                     </tr>
                 [% END %]
             </tbody>

@@ -115,8 +115,28 @@ sub report_step2 {
 
     my $dbh   = C4::Context->dbh();
     my $query = qq{
-        SELECT biblio.*, items.*, issues.*, biblioitems.itemtype, borrowers.branchcode AS patron_branchcode,
-               borrowers.cardnumber, borrowers.surname, borrowers.firstname, borrowers.email, borrowers.phone, borrowers.borrowernumber,borrowers.cardnumber,borrowers.address,borrowers.address2,borrowers.city,borrowers.zipcode, a.amountoutstanding as owed
+        SELECT
+            a.amountoutstanding,
+            biblio.title,
+            borrowers.zipcode,
+            borrowers.address,
+            borrowers.address2,
+            borrowers.borrowernumber,
+            borrowers.branchcode,
+            borrowers.city,
+            borrowers.email,
+            borrowers.firstname,
+            borrowers.surname,
+            issues.date_due,
+            issues.issue_id,
+            issues.issuedate,
+            items.barcode,
+            items.biblionumber,
+            items.holdingbranch,
+            items.homebranch,
+            items.itemcallnumber,
+            items.itemnumber,
+            items.price
         FROM issues
         LEFT JOIN accountlines a USING ( borrowernumber )
         LEFT JOIN items ON ( issues.itemnumber = items.itemnumber )
@@ -164,7 +184,31 @@ sub report_step2 {
         $query .= qq{ AND SUM(a.amountoutstanding) <= ?};
         push( @params, $fines_to );
     }
-    $query .= qq{ GROUP BY issues.issue_id ORDER BY surname, firstname, cardnumber };
+    $query .= q{ GROUP BY
+            a.amountoutstanding,
+            biblio.title,
+            borrowers.zipcode,
+            borrowers.address,
+            borrowers.address2,
+            borrowers.borrowernumber,
+            borrowers.branchcode,
+            borrowers.city,
+            borrowers.email,
+            borrowers.firstname,
+            borrowers.surname,
+            issues.date_due,
+            issues.issue_id,
+            issues.issuedate,
+            items.barcode,
+            items.biblionumber,
+            items.holdingbranch,
+            items.homebranch,
+            items.itemcallnumber,
+            items.itemnumber,
+            items.price
+    };
+
+    $query .= qq{ ORDER BY surname, firstname, cardnumber };
 
     my $sth = $dbh->prepare($query);
     $sth->execute(@params);
