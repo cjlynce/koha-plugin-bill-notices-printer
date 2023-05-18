@@ -115,35 +115,36 @@ sub report_step2 {
 
     my $dbh   = C4::Context->dbh();
     my $query = qq{
-        SELECT
-            a.amountoutstanding,
-            biblio.title,
-            borrowers.zipcode,
-            borrowers.address,
-            borrowers.address2,
-            borrowers.borrowernumber,
-            borrowers.branchcode,
-            borrowers.city,
-            borrowers.email,
-            borrowers.firstname,
-            borrowers.surname,
-            issues.date_due,
-            issues.issue_id,
-            issues.issuedate,
-            items.barcode,
-            items.biblionumber,
-            items.holdingbranch,
-            items.homebranch,
-            items.itemcallnumber,
-            items.itemnumber,
-            items.price
-        FROM issues
-        LEFT JOIN accountlines a USING ( borrowernumber )
-        LEFT JOIN items ON ( issues.itemnumber = items.itemnumber )
-        LEFT JOIN biblio USING ( biblionumber )
-        LEFT JOIN biblioitems USING ( biblioitemnumber )
-        LEFT JOIN borrowers USING ( borrowernumber )
-        WHERE 1
+ SELECT Max(a.amountoutstanding)      AS amountoutstanding,
+       Max(biblio.title)             AS title,
+       Max(borrowers.zipcode)        AS zipcode,
+       Max(borrowers.address)        AS address,
+       Max(borrowers.address2)       AS address2,
+       Max(borrowers.borrowernumber) AS borrowernumber,
+       Max(borrowers.branchcode)     AS branchcode,
+       Max(borrowers.city)           AS city,
+       Max(borrowers.email)          AS email,
+       Max(borrowers.firstname)      AS firstname,
+       Max(borrowers.surname)        AS surname,
+       Max(issues.date_due)          AS date_due,
+       Max(issues.issue_id)          AS issue_id,
+       Max(issues.issuedate)         AS issuedate,
+       Max(items.barcode)            AS barcode,
+       Max(items.biblionumber)       AS biblionumber,
+       Max(items.holdingbranch)      AS holdingbranch,
+       Max(items.homebranch)         AS homebranch,
+       Max(items.itemcallnumber)     AS itemcallnumber,
+       Max(items.itemnumber)         AS itemnumber,
+       Max(items.price)              AS price,
+       Max(issues.date_due)          AS date_due
+FROM   issues
+       LEFT JOIN accountlines a USING ( borrowernumber )
+       LEFT JOIN items
+              ON ( issues.itemnumber = items.itemnumber )
+       LEFT JOIN biblio USING ( biblionumber )
+       LEFT JOIN biblioitems USING ( biblioitemnumber )
+       LEFT JOIN borrowers USING ( borrowernumber )
+WHERE  1
     };
 
     my @params;
@@ -210,12 +211,15 @@ sub report_step2 {
 
     $query .= qq{ ORDER BY surname, firstname, cardnumber };
 
+    warn "QUERY: " . $query;
+    warn "PARAMS: " . Data::Dumper::Dumper( \@params );
     my $sth = $dbh->prepare($query);
     $sth->execute(@params);
 
     my $overdues;
     my @rows;
     while ( my $row = $sth->fetchrow_hashref ) {
+        warn "ROW: " . Data::Dumper::Dumper( $row );
         push( @rows, $row );
 
         my $borrowernumber = $row->{borrowernumber};
