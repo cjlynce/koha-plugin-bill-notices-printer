@@ -106,12 +106,16 @@ sub report_step2 {
     my $notice_code       = scalar $cgi->param('notice_code');
     my $filter_issues     = scalar $cgi->param('filter_issues');
     my @categorycodes     = $cgi->multi_param('categorycode');
+    my @loststatuses      = $cgi->multi_param('loststatuses');
 
     ( $days_from, $days_to ) = ( $days_to, $days_from )
       if ( $days_to > $days_from );
 
     @categorycodes = map { qq{'$_'} } @categorycodes;
     my $categorycodes = join( ',', @categorycodes );
+
+    @loststatuses = map { qq{'$_'} } @loststatuses;
+    my $loststatuses = join( ',', @loststatuses );
 
     my $dbh   = C4::Context->dbh();
     my $query = qq{
@@ -185,8 +189,12 @@ WHERE  1
         $query .= qq{ AND SUM(a.amountoutstanding) <= ?};
         push( @params, $fines_to );
     }
-    $query .= qq{ GROUP BY issues.issue_id ORDER BY surname, firstname, cardnumber };
 
+    if ( @loststatuses ) {
+        $query .= qq{ AND items.itemlost NOT IN ( $loststatuses ) };
+    }
+
+    $query .= qq{ GROUP BY issues.issue_id ORDER BY surname, firstname, cardnumber };
     my $sth = $dbh->prepare($query);
     $sth->execute(@params);
 

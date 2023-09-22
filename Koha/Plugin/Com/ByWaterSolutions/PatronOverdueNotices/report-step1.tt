@@ -1,5 +1,6 @@
 [% USE Branches %]
 [% USE Categories %]
+[% USE AuthorisedValues %]
 [% INCLUDE 'doc-head-open.inc' %]
  <title>Koha: Plugins: Patron overdue notices</title>
 [% INCLUDE 'doc-head-close.inc' %]
@@ -64,6 +65,18 @@
                                 </li>
                             [% END %]
                         </ol>
+                    </fieldset>
+
+                    <fieldset class="rows">
+                        <legend>Exclude LOST statuses</legend>
+                            <ol>
+                                [% FOREACH av IN AuthorisedValues.GetAuthValueDropbox('LOST') %]
+                                    <li>
+                                        <label>[% av.lib %]:</label>
+                                        <input type="checkbox" name="loststatuses" value="[% av.authorised_value %]">
+                                    </li>
+                                [% END %]
+                            </ol>
                     </fieldset>
 
                     <fieldset class="rows">
