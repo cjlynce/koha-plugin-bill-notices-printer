@@ -180,21 +180,26 @@ WHERE  1
         push( @params, $patron_cardnumber );
     }
 
-    if ( $fines_from ) {
-        $query .= qq{ AND SUM(a.amountoutstanding) >= ? };
-        push( @params, $fines_from );
-    }
-
-    if ( $fines_to ) {
-        $query .= qq{ AND SUM(a.amountoutstanding) <= ?};
-        push( @params, $fines_to );
-    }
 
     if ( @loststatuses ) {
         $query .= qq{ AND items.itemlost NOT IN ( $loststatuses ) };
     }
 
-    $query .= qq{ GROUP BY issues.issue_id ORDER BY surname, firstname, cardnumber };
+    $query .= qq{ GROUP BY issues.issue_id };
+
+    if ( $fines_from && $fines_to ) {
+        $query .= qq{ HAVING SUM(a.amountoutstanding) >= ? AND SUM(a.amountoutstanding) <= ? };
+        push( @params, $fines_from, $fines_to );
+    } elsif ( $fines_from ) {
+        $query .= qq{ HAVING SUM(a.amountoutstanding) >= ?};
+        push( @params, $fines_from );
+    } elsif ( $fines_to ) {
+        $query .= qq{ HAVING SUM(a.amountoutstanding) <= ?};
+        push( @params, $fines_to );
+    }
+
+    $query .= qq{ ORDER BY surname, firstname, cardnumber };
+
     my $sth = $dbh->prepare($query);
     $sth->execute(@params);
 
