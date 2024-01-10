@@ -1,8 +1,8 @@
 {
-  "name": "koha-plugin-overdue-notices-printer",
-  "version": "1.1.1",
-  "previous_version": "1.1.0",
-  "description": "Koha Overdue Notices Printer Plugin",
+  "name": "koha-plugin-bill-notices-printer",
+  "version": "0.0.2",
+  "previous_version": "0.0.1",
+  "description": "Koha Overdue Bill Printer Plugin base on Overdue Printer Plugin by Kyle M. Hall",
   "main": "index.js",
   "devDependencies": {
     "gulp": "^3.9.1",
@@ -16,14 +16,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bywatersolutions/koha-plugin-overdue-notices-printer.git"
+    "url": "git+https://github.com/cjlynce/koha-plugin-bill-notices-printer.git"
   },
-  "author": "Kyle M Hall <kyle@bywatersolutions.com>",
+  "author": "CJ Lynce <cj.lynce@westlakelibrary.org>",
   "license": "GPL-3.0",
   "bugs": {
-    "url": "https://github.com/bywatersolutions/koha-plugin-overdue-notices-printer/issues"
+    "url": "https://github.com/cjlynce/koha-plugin-bill-notices-printer/issues"
   },
-  "homepage": "https://github.com/bywatersolutions/koha-plugin-overdue-notices-printer#readme",
+  "homepage": "https://github.com/cjlynce/koha-plugin-bill-notices-printer#readme",
   "dependencies": {
     "jsonfile": "^4.0.0"
   }

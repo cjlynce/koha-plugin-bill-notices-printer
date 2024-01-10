@@ -171,7 +171,7 @@ jobs:
         release-version: ${{ steps.myvars.outputs.tag_version }}
         release-name: ${{ steps.myvars.outputs.github_repo }}
         minimum-version: ${{ steps.koha-version-oldstable.outputs.version-major-minor }}
-        plugin-module: "Koha/Plugin/Com/ByWaterSolutions/PatronOverdueNotices.pm"
+        plugin-module: "Koha/Plugin/Org/WestlakeLibrary/PatronBillNotices.pm"
 
     - name: See if kpz was created
       run: |
@@ -199,7 +199,7 @@ jobs:
         NOW=$(date +%s)
         DIFF=$(($NOW-$LAST_COMMIT))
         DAYS=$(($DIFF/86400))
-        git config --global user.email kyle@bywatersolutions.com
-        git config --global user.name "Kyle M Hall"
+        git config --global user.email cj.lynce@westlakelibrary.org
+        git config --global user.name "CJ Lynce"
         git commit --allow-empty -m "Automated commit from keep alive workflow"
         if [ "$DAYS" -gt "50" ]; then git push; fi

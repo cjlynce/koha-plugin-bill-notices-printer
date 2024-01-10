@@ -2,20 +2,20 @@
 [% USE Categories %]
 [% USE AuthorisedValues %]
 [% INCLUDE 'doc-head-open.inc' %]
- <title>Koha: Plugins: Patron overdue notices</title>
+ <title>Koha: Plugins: Patron bill notices</title>
 [% INCLUDE 'doc-head-close.inc' %]
 </head>
 <body>
 [% INCLUDE 'header.inc' %]
 [% INCLUDE 'cat-search.inc' %]
 
-<div id="breadcrumbs"><a href="/cgi-bin/koha/mainpage.pl">Home</a> &rsaquo; <a href="/cgi-bin/koha/plugins/plugins-home.pl">Plugins</a> &rsaquo; Patron overdue notices</div>
+<div id="breadcrumbs"><a href="/cgi-bin/koha/mainpage.pl">Home</a> &rsaquo; <a href="/cgi-bin/koha/plugins/plugins-home.pl">Plugins</a> &rsaquo; Patron bill notices</div>
 
 <div id="doc" class="yui-t7">
     <div id="bd">
         <div id="yui-main">
             <div class="yui-b">
-                <h1>Print overdue notices</h1>
+                <h1>Print bill notices</h1>
 
                 <form method="get">
                     <input type="hidden" name="class" value="[% CLASS %]"/>
@@ -49,7 +49,7 @@
                                     <option value="1">Yes</option>
                                     <option value="0">No</option>
                                 </select>
-                                <span class="hint">If yes, only overdues checked out at the selected library will be displayed.</span>
+                                <span class="hint">If yes, only bills from the selected library will be displayed.</span>
                             </li>
                         </ol>
                     </fieldset>

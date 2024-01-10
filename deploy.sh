@@ -9,7 +9,7 @@ then
     git commit -a -m "Version auto-incremented  - $TRAVIS_JOB_NUMBER"
     gulp build
     gulp release
-    git remote add github https://$GITHUB_TOKEN@github.com/bywatersolutions/koha-plugin-overdue-notices-printer
+    git remote add github https://$GITHUB_TOKEN@github.com/cjlynce/koha-plugin-bill-notices-printer
     git fetch --all
     git push github HEAD:master
   fi

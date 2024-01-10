@@ -1,4 +1,4 @@
-package Koha::Plugin::Com::ByWaterSolutions::PatronOverdueNotices;
+package Koha::Plugin::Org::WestlakeLibrary::PatronBillNotices;
 
 ## It's good practive to use Modern::Perl
 use Modern::Perl;
@@ -12,14 +12,14 @@ use Koha::Database;
 use open qw(:utf8);
 
 ## Here we set our plugin version
-our $VERSION = "{VERSION}";
+our $VERSION = "1.0.1";
 our $MINIMUM_VERSION = "{MINIMUM_VERSION}";
 
 ## Here is our metadata, some keys are required, some are optional
 our $metadata = {
-    name            => 'Patron Overdue Notices',
-    author          => 'Kyle M Hall',
-    description     => 'Generate and print overdue notices for patrons.',
+    name            => 'Patron Bill Notices',
+    author          => 'CJ Lynce',
+    description     => 'Generate print bills for patrons - based on the print overdue notices by Kyle M. Hall',
     date_authored   => '2016-06-20',
     date_updated    => "1900-01-01",
     minimum_version => $MINIMUM_VERSION,
