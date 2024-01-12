@@ -1,8 +1,10 @@
-[% USE Branches %]
+
 [% USE Categories %]
 [% USE AuthorisedValues %]
 [% INCLUDE 'doc-head-open.inc' %]
  <title>Koha: Plugins: Patron bill notices</title>
+ <script type="text/javascript" src="[% PLUGIN_PATH %]/datepicker/js/datepicker.js"></script>
+ <link href="[% PLUGIN_PATH %]/datepicker/css/datepicker.css" rel="stylesheet" type="text/css" />
 [% INCLUDE 'doc-head-close.inc' %]
 </head>
 <body>
@@ -80,24 +82,38 @@
                     </fieldset>
 
                     <fieldset class="rows">
-                        <legend>Date due range</legend>
+                        <legend>Bill date</legend>
 
                         <ol>
                             <li>
-                                <label>From:</label>
-                                <input type="text" name="days_from" id="days_from" />
-                                <span class="hint">days ago</span>
+                                <label>Bills Date From:</label>
+                                <!--input type="text" name="days_from" id="days_from" /-->
+					<input size="2" id="date-from-mm" name="fromMonth" value="" maxlength="2" type="text" />/
+					<input size="2" id="date-from-dd" name="fromDay" value="" maxlength="2" type="text" />/
+					<input size="4" class="split-date fill-grid statusformat-l-cc-sp-d-sp-F-sp-Y show-weeks" id="date-from" name="fromYear" value="" maxlength="4" type="text" />
+					<a tabindex="0" aria-haspopup="true" role="button" id="fd-but-date-from" title="Show Calendar" class="date-picker-control" href="#date-from">
+						<span>&nbsp;</span>
+					</a>
+                                <!--span class="hint">days ago</span-->
                             </li>
                             <li>
-                                <label>To:</label>
-                                <input type="text" name="days_to" id="days_to" />
-                                <span class="hint">days ago</span>
+                                <label>Bill Dates Until:</label>
+                                <!--input type="text" name="days_to" id="days_to" /-->
+					<input size="2" id="date-to-mm" name="toMonth" value="" maxlength="2" type="text" />/
+                                        <input size="2" id="date-to-dd" name="toDay" value="" maxlength="2" type="text" />/
+                                        <input size="4" class="split-date fill-grid statusformat-l-cc-sp-d-sp-F-sp-Y show-weeks" id="date-to" name="toYear" value="" maxlength="4" type="text" />
+                                        <a tabindex="0" aria-haspopup="true" role="button" id="fd-but-date-to" title="Show Calendar" class="date-picker-control" href="#date-to">
+                                                <span>&nbsp;</span>
+                                        </a>
+					<span class="hint">Leave blank for TODAY</span>
+
+                                <!--span class="hint">days ago</span-->
                             </li>
                         </ol>
                     </fieldset>
 
                     <fieldset class="rows">
-                        <legend>Total fine amount</legend>
+                        <legend>Limit by Bill amount</legend>
 
                         <ol>
                             <li>
@@ -139,7 +155,11 @@
                                 <label for="notice_code">Notice:</label>
                                 <select name="notice_code" id="notice_code">
                                     [% FOREACH n IN notices %]
+					[% IF n.name == "Overdue Billing" %]
+					<option value="[% n.code %]" selected>[% n.name %]</option>
+					[% ELSE %]
                                         <option value="[% n.code %]">[% n.name %]</option>
+					[% END %]
                                     [% END %]
                                 </select>
                             </li>

@@ -12,8 +12,8 @@ use Koha::Database;
 use open qw(:utf8);
 
 ## Here we set our plugin version
-our $VERSION = "1.0.1";
-our $MINIMUM_VERSION = "{MINIMUM_VERSION}";
+our $VERSION = "1.0.2";
+our $MINIMUM_VERSION = "23.05";
 
 ## Here is our metadata, some keys are required, some are optional
 our $metadata = {
@@ -21,7 +21,7 @@ our $metadata = {
     author          => 'CJ Lynce',
     description     => 'Generate print bills for patrons - based on the print overdue notices by Kyle M. Hall',
     date_authored   => '2016-06-20',
-    date_updated    => "1900-01-01",
+    date_updated    => "2024-01-11",
     minimum_version => $MINIMUM_VERSION,
     maximum_version => undef,
     version         => $VERSION,
@@ -108,8 +108,8 @@ sub report_step2 {
     my @categorycodes     = $cgi->multi_param('categorycode');
     my @loststatuses      = $cgi->multi_param('loststatuses');
 
-    ( $days_from, $days_to ) = ( $days_to, $days_from )
-      if ( $days_to > $days_from );
+    #   ( $days_from, $days_to ) = ( $days_to, $days_from )
+    #  if ( $days_to > $days_from );
 
     @categorycodes = map { qq{'$_'} } @categorycodes;
     my $categorycodes = join( ',', @categorycodes );
@@ -131,20 +131,19 @@ sub report_step2 {
             borrowers.email,
             borrowers.firstname,
             borrowers.surname,
-            issues.date_due,
-            issues.issue_id,
-            issues.issuedate,
+            a.date as date_due,
+            a.accountlines_id as issue_id,
+            a.date as issuedate,
             items.barcode,
             items.biblionumber,
             items.holdingbranch,
             items.homebranch,
             items.itemcallnumber,
             items.itemnumber,
-            items.price
-FROM   issues
-       LEFT JOIN accountlines a USING ( borrowernumber )
+            items.replacementprice as price
+FROM   accountlines a
        LEFT JOIN items
-              ON ( issues.itemnumber = items.itemnumber )
+              ON ( a.itemnumber = items.itemnumber )
        LEFT JOIN biblio USING ( biblionumber )
        LEFT JOIN biblioitems USING ( biblioitemnumber )
        LEFT JOIN borrowers USING ( borrowernumber )
@@ -152,14 +151,37 @@ WHERE  1
     };
 
     my @params;
+    my ( $fromDate, $toDate );
+    my $fromDay   = $cgi->param('fromDay');
+    my $fromMonth = $cgi->param('fromMonth');
+    my $fromYear  = $cgi->param('fromYear');
 
-    if ( $days_from && $days_to ) {
-        $query .= qq{ AND date_due BETWEEN DATE_SUB(CURDATE(), INTERVAL ? DAY) AND DATE_SUB(CURDATE(), INTERVAL ? DAY) };
-        push( @params, $days_from );
-        push( @params, $days_to );
+    my $toDay   = $cgi->param('toDay');
+    my $toMonth = $cgi->param('toMonth');
+    my $toYear  = $cgi->param('toYear');
+
+    if ( $fromDay && $fromMonth && $fromYear && $toDay && $toMonth && $toYear ) {
+        $fromDate = "$fromYear-$fromMonth-$fromDay 00:00:00";
+        $toDate   = "$toYear-$toMonth-$toDay 23:59:59";
+    	$query .= qq{ AND a.date BETWEEN ? AND ? };
+    	push( @params, $fromDate );
+    	push( @params, $toDate );
+    } elsif ( $fromDay && $fromMonth && $fromYear ) {
+   	$fromDate = "$fromYear-$fromMonth-$fromDay";
+        $query .= qq{ AND a.date BETWEEN ? AND CURDATE() };
+        push( @params, $fromDate );
     } else {
-        $query .= qq{ AND date_due < NOW() };
+     	$query .= qq{ AND a.date < NOW() };
     }
+    
+
+    #    if ( $days_from && $days_to ) {
+    #    $query .= qq{ AND a.date BETWEEN DATE_SUB(CURDATE(), INTERVAL ? DAY) AND DATE_SUB(CURDATE(), INTERVAL ? DAY) };
+    #    push( @params, $days_from );
+    #    push( @params, $days_to );
+    #} else {
+    #    $query .= qq{ AND a.date < NOW() };
+    #}
 
     if ( $branchcode && $filter_issues ) {
         $query .= qq{ AND items.$branchcode_field = ? };
@@ -185,7 +207,7 @@ WHERE  1
         $query .= qq{ AND items.itemlost NOT IN ( $loststatuses ) };
     }
 
-    $query .= qq{ GROUP BY issues.issue_id };
+    #$query .= qq{ GROUP BY issues.issue_id };
 
     if ( $fines_from && $fines_to ) {
         $query .= qq{ HAVING SUM(a.amountoutstanding) >= ? AND SUM(a.amountoutstanding) <= ? };
