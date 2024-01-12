@@ -12,7 +12,7 @@ use Koha::Database;
 use open qw(:utf8);
 
 ## Here we set our plugin version
-our $VERSION = "1.0.2";
+our $VERSION = "1.0.4";
 our $MINIMUM_VERSION = "23.05";
 
 ## Here is our metadata, some keys are required, some are optional
@@ -20,8 +20,8 @@ our $metadata = {
     name            => 'Patron Bill Notices',
     author          => 'CJ Lynce',
     description     => 'Generate print bills for patrons - based on the print overdue notices by Kyle M. Hall',
-    date_authored   => '2016-06-20',
-    date_updated    => "2024-01-11",
+    date_authored   => '2024-01-10',
+    date_updated    => "2024-01-12",
     minimum_version => $MINIMUM_VERSION,
     maximum_version => undef,
     version         => $VERSION,
@@ -97,14 +97,16 @@ sub report_step2 {
 
     my $branchcode        = scalar $cgi->param('branchcode');
     my $branchcode_field  = scalar $cgi->param('branchcode_field');
-    my $days_from         = scalar $cgi->param('days_from');
-    my $days_to           = scalar $cgi->param('days_to');
+    #my $days_from         = scalar $cgi->param('days_from');
+    #my $days_to           = scalar $cgi->param('days_to');
     my $fines_from        = scalar $cgi->param('fines_from');
     my $fines_to          = scalar $cgi->param('fines_to');
     my $patron_cardnumber = scalar $cgi->param('cardnumber');
     my $patron_id         = scalar $cgi->param('borrowernumber');
     my $notice_code       = scalar $cgi->param('notice_code');
     my $filter_issues     = scalar $cgi->param('filter_issues');
+    my $fromDate	  = scalar $cgi->param('fromDate');
+    my $toDate		  = scalar $cgi->param('toDate');
     my @categorycodes     = $cgi->multi_param('categorycode');
     my @loststatuses      = $cgi->multi_param('loststatuses');
 
@@ -151,23 +153,15 @@ WHERE  1
     };
 
     my @params;
-    my ( $fromDate, $toDate );
-    my $fromDay   = $cgi->param('fromDay');
-    my $fromMonth = $cgi->param('fromMonth');
-    my $fromYear  = $cgi->param('fromYear');
 
-    my $toDay   = $cgi->param('toDay');
-    my $toMonth = $cgi->param('toMonth');
-    my $toYear  = $cgi->param('toYear');
-
-    if ( $fromDay && $fromMonth && $fromYear && $toDay && $toMonth && $toYear ) {
-        $fromDate = "$fromYear-$fromMonth-$fromDay 00:00:00";
-        $toDate   = "$toYear-$toMonth-$toDay 23:59:59";
+    if ( $fromDate && $toDate ) {
+	$fromDate .= " 00:00:00";
+	$toDate .= " 23:59:59";
     	$query .= qq{ AND a.date BETWEEN ? AND ? };
     	push( @params, $fromDate );
     	push( @params, $toDate );
-    } elsif ( $fromDay && $fromMonth && $fromYear ) {
-   	$fromDate = "$fromYear-$fromMonth-$fromDay";
+    } elsif ( $fromDate ) {
+	$fromDate .= " 00:00:00";
         $query .= qq{ AND a.date BETWEEN ? AND CURDATE() };
         push( @params, $fromDate );
     } else {
@@ -210,14 +204,19 @@ WHERE  1
     #$query .= qq{ GROUP BY issues.issue_id };
 
     if ( $fines_from && $fines_to ) {
-        $query .= qq{ HAVING SUM(a.amountoutstanding) >= ? AND SUM(a.amountoutstanding) <= ? };
+	    #$query .= qq{ HAVING SUM(a.amountoutstanding) >= ? AND SUM(a.amountoutstanding) <= ? };
+	    $query .= qq{ AND a.amountoutstanding >= ? AND a.amountoutstanding) <= ? };
         push( @params, $fines_from, $fines_to );
     } elsif ( $fines_from ) {
-        $query .= qq{ HAVING SUM(a.amountoutstanding) >= ?};
+	    #$query .= qq{ HAVING SUM(a.amountoutstanding) >= ?};
+	$query .= qq{ AND a.amountoutstanding) >= ?};
         push( @params, $fines_from );
     } elsif ( $fines_to ) {
-        $query .= qq{ HAVING SUM(a.amountoutstanding) <= ?};
+	    #$query .= qq{ AND a.amountoutstanding) <= ?};
+	$query .= qq{ AND a.amountoutstanding > 0 AND a.amountoutstanding) <= ?};
         push( @params, $fines_to );
+    } else {
+	$query .= qq{ AND a.amountoutstanding > 0 };
     }
 
     $query .= qq{ ORDER BY surname, firstname, cardnumber };
@@ -261,8 +260,8 @@ WHERE  1
         rows     => \@rows,
         overdues => $overdues,
     );
-
     print $cgi->header();
+    print '<div class="noprint"><tt>' . $query . '</tt></div>';
     print $template->output();
 }
 
