@@ -1,18 +1,29 @@
 
 [% USE Categories %]
 [% USE AuthorisedValues %]
+[% USE date %]
 [% INCLUDE 'doc-head-open.inc' %]
  <title>Koha: Plugins: Patron bill notices</title>
  <script type="text/javascript" src="[% PLUGIN_PATH %]/datepicker/js/datepicker.js"></script>
  <link href="[% PLUGIN_PATH %]/datepicker/css/datepicker.css" rel="stylesheet" type="text/css" />
 [% INCLUDE 'doc-head-close.inc' %]
+	<style>
+	.fourby { 
+		width: 800px;
+	}
+	.fourby td {
+		width: 25%;
+		text-align: right;
+	}
+	.fourby label {
+		font-weight: bold !important;
+	}
+	</style>
 </head>
 <body>
 [% INCLUDE 'header.inc' %]
 [% INCLUDE 'cat-search.inc' %]
-
 <div id="breadcrumbs"><a href="/cgi-bin/koha/mainpage.pl">Home</a> &rsaquo; <a href="/cgi-bin/koha/plugins/plugins-home.pl">Plugins</a> &rsaquo; Patron bill notices</div>
-
 <div id="doc" class="yui-t7">
     <div id="bd">
         <div id="yui-main">
@@ -46,7 +57,7 @@
                             </li>
 
                             <li>
-                                <label for="filter_issues">Limit checkouts</label>
+                                <label for="filter_issues">Limit bill to library</label>
                                 <select name="filter_issues" id="filter_issues">
                                     <option value="1">Yes</option>
                                     <option value="0">No</option>
@@ -58,30 +69,51 @@
 
                     <fieldset class="rows">
                         <legend>Patron categories</legend>
-
-                        <ol>
-                            [% FOREACH c IN Categories.all %]
-                                <li>
-                                    <label>[% c.description %]:</label>
+			[% SET totalcats = 0 %]
+			[% FOREACH c IN Categories.all %]
+				[% totalcats = totalcats + 1 %]
+			[% END %]
+			[% SET cols = 4 %][% SET rows = ( totalcats div cols ) + 1 %]
+			
+			<table class="fourby">
+			[% SET entry = 1 %]
+			[% FOREACH c IN Categories.all %]
+				[% IF ( entry - 1 ) mod 4 == '0' %]<tr>[% END %]
+				<td>
+				    <label>[% c.description %]:</label>
                                     <input type="checkbox" name="categorycode" value="[% c.categorycode %]">
-                                </li>
-                            [% END %]
-                        </ol>
+				</td>
+				[% IF entry mod 4 == '0' %]</tr>[% END %]
+				[% entry = entry + 1 %]
+			[% END %]
+			</table>
                     </fieldset>
 
                     <fieldset class="rows">
                         <legend>Exclude LOST statuses</legend>
-                            <ol>
-                                [% FOREACH av IN AuthorisedValues.GetAuthValueDropbox('LOST') %]
-                                    <li>
+			[% SET totalcats = 0 %]
+                        [% FOREACH c IN Categories.all %]
+                                [% totalcats = totalcats + 1 %]
+                        [% END %]
+                        [% SET cols = 4 %][% SET rows = ( totalcats div cols ) + 1 %]
+
+                        <table class="fourby">
+			[% SET entry = 1 %]
+			[% FOREACH av IN AuthorisedValues.GetAuthValueDropbox('LOST') %]
+				[% IF ( entry - 1 ) mod 4 == '0' %]<tr>[% END %]
+                                <td>
                                         <label>[% av.lib %]:</label>
                                         <input type="checkbox" name="loststatuses" value="[% av.authorised_value %]">
-                                    </li>
-                                [% END %]
-                            </ol>
+                                </td>
+				[% IF entry mod 4 == '0' %]</tr>[% END %]
+                                [% entry = entry + 1 %]
+                        [% END %]
+		 	</table>
                     </fieldset>
 
-                    <fieldset class="rows">
+                    <table class="threeby">
+		    <tr><td>
+		    <fieldset class="rows">
                         <legend>Bill date</legend>
 
                         <ol>
@@ -94,7 +126,7 @@
 					<a tabindex="0" aria-haspopup="true" role="button" id="fd-but-date-from" title="Show Calendar" class="date-picker-control" href="#date-from">
 						<span>&nbsp;</span>
 					</a> --->
-					<input type="date" name="fromDate">
+					<input type="date" name="fromDate" value="[% date.manip.UnixDate("6 days ago","%Y-%m-%d") %]">
                                 <!--span class="hint">days ago</span-->
                             </li>
                             <li>
@@ -113,7 +145,8 @@
                             </li>
                         </ol>
                     </fieldset>
-
+		    </td>
+		    <td>
                     <fieldset class="rows">
                         <legend>Limit by Bill amount</legend>
 
@@ -128,7 +161,8 @@
                             </li>
                         </ol>
                     </fieldset>
-
+		    </td>
+		    <td>
                     <fieldset class="rows">
                         <legend>Specific patron</legend>
 
@@ -143,7 +177,9 @@
                             </li>
                         </ol>
                     </fieldset>
-
+		    </td>
+		</tr>
+		</table>
                     [% PERL %]
                         use C4::Letters qw(GetLetters);
                         my $notices = GetLetters( { module => 'circulation' } );
