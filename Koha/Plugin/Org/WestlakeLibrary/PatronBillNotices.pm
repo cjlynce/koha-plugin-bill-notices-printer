@@ -172,7 +172,7 @@ sub report_step2 {
     my $dbh   = C4::Context->dbh();
     my $query = qq{
         SELECT
-            a.amountoutstanding,
+            ROUND(a.amountoutstanding, 2) as amountoutstanding,
 	    biblio.title,
             borrowers.zipcode,
             borrowers.address,
@@ -192,7 +192,7 @@ sub report_step2 {
             items.homebranch,
             items.itemcallnumber,
             items.itemnumber,
-            a.amountoutstanding as price
+            ROUND(a.amountoutstanding, 2) AS price
 FROM   accountlines a
        LEFT JOIN items
               ON ( a.itemnumber = items.itemnumber )
