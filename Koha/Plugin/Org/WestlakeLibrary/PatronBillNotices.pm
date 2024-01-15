@@ -203,10 +203,10 @@ WHERE  1
     	push( @params, $toDate );
     } elsif ( $fromDate ) {
 	$fromDate .= " 00:00:00";
-        $query .= qq{ AND a.date BETWEEN ? AND CURDATE() };
+        $query .= qq{ AND a.date BETWEEN ? AND CURRENT_TIMESTAMP() };
         push( @params, $fromDate );
     } else {
-     	$query .= qq{ AND a.date < NOW() };
+     	$query .= qq{ AND a.date < CURRENT_TIMESTAMP() };
     }
     
 
