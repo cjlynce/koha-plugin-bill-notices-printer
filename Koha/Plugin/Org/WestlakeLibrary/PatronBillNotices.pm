@@ -192,7 +192,7 @@ sub report_step2 {
             items.homebranch,
             items.itemcallnumber,
             items.itemnumber,
-            items.replacementprice as price
+            a.amountoutstanding as price
 FROM   accountlines a
        LEFT JOIN items
               ON ( a.itemnumber = items.itemnumber )
