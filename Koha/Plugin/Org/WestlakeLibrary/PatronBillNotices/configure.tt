@@ -46,7 +46,7 @@
                         [% SET cols = 4 %][% SET rows = ( totalcats div cols ) + 1 %]
 
 [% SET ccs = default_patron_types.replace('\'','') %]
-<p>[% ccs %]</p>
+<!--p>[% ccs %]</p-->
 
                         <table class="fourby">
                         [% SET entry = 1 %]

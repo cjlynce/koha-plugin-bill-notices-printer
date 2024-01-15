@@ -12,7 +12,7 @@ use Koha::Database;
 use open qw(:utf8);
 
 ## Here we set our plugin version
-our $VERSION = "1.0.6";
+our $VERSION = "1.0.7";
 our $MINIMUM_VERSION = "23.05";
 
 ## Here is our metadata, some keys are required, some are optional
@@ -21,7 +21,7 @@ our $metadata = {
     author          => 'CJ Lynce',
     description     => 'Generate print bills for patrons - based on the print overdue notices by Kyle M. Hall',
     date_authored   => '2024-01-10',
-    date_updated    => "2024-01-12",
+    date_updated    => "2024-01-15",
     minimum_version => $MINIMUM_VERSION,
     maximum_version => undef,
     version         => $VERSION,
