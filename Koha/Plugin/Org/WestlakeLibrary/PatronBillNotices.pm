@@ -12,7 +12,7 @@ use Koha::Database;
 use open qw(:utf8);
 
 ## Here we set our plugin version
-our $VERSION = "1.0.5";
+our $VERSION = "1.0.6";
 our $MINIMUM_VERSION = "23.05";
 
 ## Here is our metadata, some keys are required, some are optional
@@ -25,6 +25,7 @@ our $metadata = {
     minimum_version => $MINIMUM_VERSION,
     maximum_version => undef,
     version         => $VERSION,
+    namespace       => 'billnotices',
 };
 
 ## This is the minimum code required for a plugin's 'new' method
@@ -62,6 +63,38 @@ sub report {
 
 }
 
+
+sub configure {
+    my ( $self, $args ) = @_;
+    my $cgi = $self->{'cgi'};
+
+    unless ( $cgi->param('save') ) {
+        my $template = $self->get_template({ file => 'configure.tt' });
+
+        ## Grab the values we already have for our settings, if any exist
+        $template->param(
+            default_rep_days => $self->retrieve_data('default_rep_days'),
+            default_patron_types => $self->retrieve_data('default_patron_types'),
+            default_template => $self->retrieve_data('default_template'),
+        );
+
+        $self->output_html( $template->output() );
+    }
+    else {
+        my @default_patron_types = $cgi->multi_param('default_patron_types');
+	@default_patron_types = map { qq{'$_'} } @default_patron_types;
+
+	$self->store_data(
+            {
+                default_rep_days => $cgi->param('default_rep_days'),
+                default_patron_types => join( ',', @default_patron_types ),
+                default_template => $cgi->param('default_template'),
+            }
+        );
+        $self->go_home();
+    }
+}
+
 ## This is the 'install' method. Any database tables or other setup that should
 ## be done when the plugin if first installed should be executed in this method.
 ## The installation method should always return true if the installation succeeded
@@ -83,9 +116,16 @@ sub uninstall() {
 
 sub report_step1 {
     my ( $self, $args ) = @_;
+
     my $cgi = $self->{'cgi'};
 
     my $template = $self->get_template( { file => 'report-step1.tt' } );
+    
+    $template->param(
+    	default_rep_days => $self->retrieve_data('default_rep_days'),
+	default_patron_types => $self->retrieve_data('default_patron_types'),
+	default_template => $self->retrieve_data('default_template'),
+    );
 
     print $cgi->header();
     print $template->output();
@@ -109,6 +149,7 @@ sub report_step2 {
     my $toDate		  = scalar $cgi->param('toDate');
     my @categorycodes     = $cgi->multi_param('categorycode');
     my @loststatuses      = $cgi->multi_param('loststatuses');
+    my $default_patron_types = $self->retrieve_data('default_patron_types');
 
     #   ( $days_from, $days_to ) = ( $days_to, $days_from )
     #  if ( $days_to > $days_from );
@@ -181,10 +222,11 @@ WHERE  1
         $query .= qq{ AND items.$branchcode_field = ? };
         push( @params, $branchcode );
     }
-    ## FIXME else limit by patron branchcode?
 
     if (@categorycodes) {
         $query .= qq{ AND borrowers.categorycode IN ( $categorycodes ) };
+    } elsif ($default_patron_types) {
+        $query .= qq{ AND borrowers.categorycode IN ( $default_patron_types ) };
     }
 
     if ( $patron_id ) {
@@ -261,7 +303,7 @@ WHERE  1
         overdues => $overdues,
     );
     print $cgi->header();
-    print '<div class="noprint"><tt>' . $query . '</tt></div>';
+    # print '<div><class="noprint"><pre>' . $query . '</pre></div>';
     print $template->output();
 }
 

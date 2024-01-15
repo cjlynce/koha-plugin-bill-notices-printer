@@ -1,17 +1,31 @@
+[% USE Categories %]
 [% INCLUDE 'doc-head-open.inc' %]
- <title>Koha: Patron Emailer: Configuration</title>
+ <title>Koha: Print Bill Notices : Configuration</title>
 [% INCLUDE 'doc-head-close.inc' %]
 </head>
+ <style>
+        .fourby {
+                width: 800px;
+        }
+        .fourby td {
+                width: 25%;
+                text-align: right;
+        }
+        .fourby label {
+                font-weight: bold !important;
+        }
+        </style>
+
 <body>
 [% INCLUDE 'header.inc' %]
 [% INCLUDE 'cat-search.inc' %]
 
-<div id="breadcrumbs"><a href="/cgi-bin/koha/mainpage.pl">Home</a> &rsaquo; <a href="/cgi-bin/koha/plugins/plugins-home.pl">Plugins</a> &rsaquo; Patron Emailer &rsaquo; Configuration</div>
+<div id="breadcrumbs"><a href="/cgi-bin/koha/mainpage.pl">Home</a> &rsaquo; <a href="/cgi-bin/koha/plugins/plugins-home.pl">Plugins</a> &rsaquo; Print Bill Notices &rsaquo; Configuration</div>
 
 <div id="doc3">
     <!-- We can access our own plugins resource files using the PLUGIN_PATH variable. -->
-    <img src="[% PLUGIN_PATH %]/logo.png" />
-    <h3>Koha: Patron Emailer: Configuration</h3>
+    <!--img src="[% PLUGIN_PATH %]/logo.png" /-->
+    <h3>Koha: Print Bill Notices: Configuration</h3>
 
     <!-- Notice our form here has no 'action', this is good, it means that our forms will always get passed back to 'plugins/run.pl'. You could hard code it instead if you prefer -->
     <form method="get">
@@ -22,26 +36,53 @@
         [% IF error %]<div class="warn alert error">Error: [% error %]</div>[% END %]
 
         <p>
-            <label for="subject">Email subject: </label>
-            <input name="subject" type="text" class="input-xxlarge" size="100" value="[% subject %]" />
+            <label for="default_rep_days">Default number of days for report: </label>
+            <input name="default_rep_days" type="text" class="input-xxlarge" size="3" value="[% default_rep_days %]" />
         </p>
+                        [% SET totalcats = 0 %]
+                        [% FOREACH c IN Categories.all %]
+                                [% totalcats = totalcats + 1 %]
+                        [% END %]
+                        [% SET cols = 4 %][% SET rows = ( totalcats div cols ) + 1 %]
 
-        <p>
-            <label for="body">Email text: </label>
-            <br/>
-            <textarea rows="15" cols="200" name="body">[% body %]</textarea>
-        </p>
+[% SET ccs = default_patron_types.replace('\'','') %]
+<p>[% ccs %]</p>
 
-        <p>This plugin uses Template Toolkit syntax. All the fields in the uploaded CSV file will be available.</p>
+                        <table class="fourby">
+                        [% SET entry = 1 %]
+                        [% FOREACH c IN Categories.all %]
+                                [% IF ( entry - 1 ) mod 4 == '0' %]<tr>[% END %]
+                                <td>
+                                    <label>[% c.description %]:</label>
+					[% IF ccs.split(',').grep('^' _ c.categorycode _ '$').size %]                                    
+						<input type="checkbox" name="default_patron_types" value="[% c.categorycode %]" checked>
+					[% ELSE %]
+						<input type="checkbox" name="default_patron_types" value="[% c.categorycode %]">
+					[% END %]
+                                </td>
+                                [% IF entry mod 4 == '0' %]</tr>[% END %]
+                                [% entry = entry + 1 %]
+                        [% END %]
+                        </table>
 
-        <p>Example:</p>
-        <pre>
-[% TAGS [- -] %]
-First name: [% firstname %]
-Last name: [% lastname %]
-[- TAGS [% %] -]
-        </pre>
+	[% PERL %]
+        	use C4::Letters qw(GetLetters);
+                my $notices = GetLetters( { module => 'circulation' } );
+                $stash->set( notices => $notices );
+        [% END %]
+	<p>
+		<label for="default_template">Default Notice Template:</label>
+	                <select name="default_template" id="default_template">
+                        [% FOREACH n IN notices %]
+        	                [% IF n.code == default_template %]
+        	                        <option value="[% n.code %]" selected>[% n.name %]</option>
+	                        [% ELSE %]
+                	                 <option value="[% n.code %]">[% n.name %]</option>
+                        	[% END %]
+                        [% END %]
+                        </select>
 
+	</p>
 
         <input type="hidden" name="save" value="1" />
 

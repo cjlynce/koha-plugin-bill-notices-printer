@@ -68,7 +68,8 @@
                     </fieldset>
 
                     <fieldset class="rows">
-                        <legend>Patron categories</legend>
+                        <legend>Include only specific patron categories</legend>
+			<span class="hint">If none are selected, report will default to configured patrons types</span>
 			[% SET totalcats = 0 %]
 			[% FOREACH c IN Categories.all %]
 				[% totalcats = totalcats + 1 %]
@@ -120,24 +121,12 @@
                             <li>
                                 <label>Bills Date From:</label>
                                 <!--input type="text" name="days_from" id="days_from" /-->
-					<!---<input size="2" id="date-from-mm" name="fromMonth" value="" maxlength="2" type="text" />/
-					<input size="2" id="date-from-dd" name="fromDay" value="" maxlength="2" type="text" />/
-					<input size="4" class="split-date fill-grid statusformat-l-cc-sp-d-sp-F-sp-Y show-weeks" id="date-from" name="fromYear" value="" maxlength="4" type="text" />
-					<a tabindex="0" aria-haspopup="true" role="button" id="fd-but-date-from" title="Show Calendar" class="date-picker-control" href="#date-from">
-						<span>&nbsp;</span>
-					</a> --->
-					<input type="date" name="fromDate" value="[% date.manip.UnixDate("6 days ago","%Y-%m-%d") %]">
+					<input type="date" name="fromDate" value="[% date.manip.UnixDate( ( default_rep_days - 1 ) _ ' days ago','%Y-%m-%d') %]">
                                 <!--span class="hint">days ago</span-->
                             </li>
                             <li>
                                 <label>Bill Dates Until:</label>
                                 <!--input type="text" name="days_to" id="days_to" /-->
-					<!--- <input size="2" id="date-to-mm" name="toMonth" value="" maxlength="2" type="text" />/
-                                        <input size="2" id="date-to-dd" name="toDay" value="" maxlength="2" type="text" />/
-                                        <input size="4" class="split-date fill-grid statusformat-l-cc-sp-d-sp-F-sp-Y show-weeks" id="date-to" name="toYear" value="" maxlength="4" type="text" />
-                                        <a tabindex="0" aria-haspopup="true" role="button" id="fd-but-date-to" title="Show Calendar" class="date-picker-control" href="#date-to">
-                                                <span>&nbsp;</span>
-                                        </a> -->
 					<input type="date" name="toDate" />
 					<span class="hint">Leave blank for TODAY</span>
 
@@ -193,7 +182,7 @@
                                 <label for="notice_code">Notice:</label>
                                 <select name="notice_code" id="notice_code">
                                     [% FOREACH n IN notices %]
-					[% IF n.name == "Overdue Billing" %]
+					[% IF n.code == default_template %]
 					<option value="[% n.code %]" selected>[% n.name %]</option>
 					[% ELSE %]
                                         <option value="[% n.code %]">[% n.name %]</option>

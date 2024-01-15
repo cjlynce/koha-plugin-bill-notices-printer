@@ -1,5 +1,4 @@
 #!/bin/bash
-
 if git log -1 --pretty=oneline | grep -v 'Version auto-incremented'
 then
   if echo $TRAVIS_BRANCH | grep master
