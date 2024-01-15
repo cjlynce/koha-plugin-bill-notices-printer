@@ -39,6 +39,11 @@
             <label for="default_rep_days">Default number of days for report: </label>
             <input name="default_rep_days" type="text" class="input-xxlarge" size="3" value="[% default_rep_days %]" />
         </p>
+        <p>
+            <label for="billtypes">Types of Bills to include: </label>
+            <input name="billtypes" type="text" class="input-xxlarge" size="20" value="[% billtypes %]" />
+	    <span class="hint">Separate multiple types using | (e.g. "LOST|DAMAGE")</span>
+        </p>
                         [% SET totalcats = 0 %]
                         [% FOREACH c IN Categories.all %]
                                 [% totalcats = totalcats + 1 %]
@@ -47,7 +52,9 @@
 
 [% SET ccs = default_patron_types.replace('\'','') %]
 <!--p>[% ccs %]</p-->
-
+	<p>
+	<label for="default_patron_types">Default Patron Types to include in report: </label>
+	</p>
                         <table class="fourby">
                         [% SET entry = 1 %]
                         [% FOREACH c IN Categories.all %]

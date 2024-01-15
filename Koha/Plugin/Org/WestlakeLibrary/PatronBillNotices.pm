@@ -70,12 +70,16 @@ sub configure {
 
     unless ( $cgi->param('save') ) {
         my $template = $self->get_template({ file => 'configure.tt' });
-
+	my $types_of_bills = $self->retrieve_data('billtypes');
+	$types_of_bills =~ s/\'//g;
+	$types_of_bills =~ tr/,/|/;
+	
         ## Grab the values we already have for our settings, if any exist
         $template->param(
             default_rep_days => $self->retrieve_data('default_rep_days'),
             default_patron_types => $self->retrieve_data('default_patron_types'),
             default_template => $self->retrieve_data('default_template'),
+	    billtypes => $types_of_bills,
         );
 
         $self->output_html( $template->output() );
@@ -83,12 +87,16 @@ sub configure {
     else {
         my @default_patron_types = $cgi->multi_param('default_patron_types');
 	@default_patron_types = map { qq{'$_'} } @default_patron_types;
+	my @types_of_bills = split('\|', $cgi->param('billtypes'));
+	@types_of_bills = map { qq{'$_'} } @types_of_bills;
+	
 
 	$self->store_data(
             {
                 default_rep_days => $cgi->param('default_rep_days'),
                 default_patron_types => join( ',', @default_patron_types ),
                 default_template => $cgi->param('default_template'),
+		billtypes => join(',', @types_of_bills),
             }
         );
         $self->go_home();
@@ -150,6 +158,7 @@ sub report_step2 {
     my @categorycodes     = $cgi->multi_param('categorycode');
     my @loststatuses      = $cgi->multi_param('loststatuses');
     my $default_patron_types = $self->retrieve_data('default_patron_types');
+    my $bill_types        = $self->retrieve_data('billtypes');
 
     #   ( $days_from, $days_to ) = ( $days_to, $days_from )
     #  if ( $days_to > $days_from );
@@ -164,7 +173,7 @@ sub report_step2 {
     my $query = qq{
         SELECT
             a.amountoutstanding,
-            biblio.title,
+	    biblio.title,
             borrowers.zipcode,
             borrowers.address,
             borrowers.address2,
@@ -227,6 +236,10 @@ WHERE  1
         $query .= qq{ AND borrowers.categorycode IN ( $categorycodes ) };
     } elsif ($default_patron_types) {
         $query .= qq{ AND borrowers.categorycode IN ( $default_patron_types ) };
+    }
+
+    if ($bill_types) {
+        $query .= qq{ AND a.debit_type_code IN ( $bill_types ) };
     }
 
     if ( $patron_id ) {
