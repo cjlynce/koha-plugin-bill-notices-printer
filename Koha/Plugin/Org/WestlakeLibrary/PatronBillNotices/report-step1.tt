@@ -74,10 +74,9 @@
                         [% FOREACH c IN Categories.all %]
 				[% val_array.push(c) %]
                         [% END %]
-                        [% SET cols = 4 %][% SET rows = ( val_array.size div cols ) + 1 %]
-	
-                        
-			[% SET entry = 1 %][% SET cell = 0 %][% SET newrow = 1 %]
+                        [% SET cols = 4 %][% SET rows = ( val_array.size div cols ) %]
+			[% IF val_array.size mod cols != '0' %][% rows = rows + 1 %][% END %]
+			[% SET onrow = 0 %][% SET entry = 1 %][% SET cell = 0 %][% SET newrow = 1 %]
 			<table class="fourby">
 			[% WHILE entry <= val_array.size %]
 				[% IF newrow %]<tr>[% newrow = 0%][% END %]
@@ -85,9 +84,10 @@
 			            <label>[% val_array.$cell.description %]:</label>
                                     <input type="checkbox" name="categorycode" value="[% val_array.$cell.categorycode %]">
 				</td>
-				[% cell = cell + cols %]
+				[% cell = cell + rows %]
 				[% IF cell >= val_array.size %]
-					[% cell = ( cell mod cols ) + 1  %]
+					[% onrow = onrow + 1 %]
+					[% cell = onrow %]
 					</tr>
 					[% newrow = 1 %]
 				[% END %]
