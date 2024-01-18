@@ -44,33 +44,42 @@
             <input name="billtypes" type="text" class="input-xxlarge" size="20" value="[% billtypes %]" />
 	    <span class="hint">Separate multiple types using | (e.g. "LOST|DAMAGE")</span>
         </p>
-                        [% SET totalcats = 0 %]
+                        [% SET val_array = [ ] %]
                         [% FOREACH c IN Categories.all %]
-                                [% totalcats = totalcats + 1 %]
+                                [% val_array.push(c) %]
                         [% END %]
-                        [% SET cols = 4 %][% SET rows = ( totalcats div cols ) + 1 %]
+                        [% SET cols = 4 %][% SET rows = ( val_array.size div cols ) + 1 %]
 
 [% SET ccs = default_patron_types.replace('\'','') %]
 <!--p>[% ccs %]</p-->
 	<p>
 	<label for="default_patron_types">Default Patron Types to include in report: </label>
 	</p>
+
+                        [% SET entry = 1 %][% SET cell = 0 %][% SET newrow = 1 %]
                         <table class="fourby">
-                        [% SET entry = 1 %]
-                        [% FOREACH c IN Categories.all %]
-                                [% IF ( entry - 1 ) mod 4 == '0' %]<tr>[% END %]
+                        [% WHILE entry <= val_array.size %]
+                                [% IF newrow %]<tr>[% newrow = 0%][% END %]
                                 <td>
-                                    <label>[% c.description %]:</label>
-					[% IF ccs.split(',').grep('^' _ c.categorycode _ '$').size %]                                    
-						<input type="checkbox" name="default_patron_types" value="[% c.categorycode %]" checked>
+                                    <label>[% val_array.$cell.description %]:</label>
+				   	[% IF ccs.split(',').grep('^' _ val_array.$cell.categorycode _ '$').size %]
+	                                	<input type="checkbox" name="default_patron_types" value="[% val_array.$cell.categorycode %]" checked>
 					[% ELSE %]
-						<input type="checkbox" name="default_patron_types" value="[% c.categorycode %]">
+						<input type="checkbox" name="default_patron_types" value="[% val_array.$cell.categorycode %]">
 					[% END %]
                                 </td>
-                                [% IF entry mod 4 == '0' %]</tr>[% END %]
+                                [% cell = cell + cols %]
+                                [% IF cell >= val_array.size %]
+                                        [% cell = ( cell mod cols ) + 1  %]
+                                        </tr>
+                                        [% newrow = 1 %]
+                                [% END %]
                                 [% entry = entry + 1 %]
                         [% END %]
                         </table>
+                    </fieldset>
+
+
 
 	[% PERL %]
         	use C4::Letters qw(GetLetters);

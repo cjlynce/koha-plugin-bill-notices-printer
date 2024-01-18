@@ -69,29 +69,39 @@
 
                     <fieldset class="rows">
                         <legend>Include only specific patron categories</legend>
-			<span class="hint">If none are selected, report will default to configured patrons types</span>
-			[% SET totalcats = 0 %]
-			[% FOREACH c IN Categories.all %]
-				[% totalcats = totalcats + 1 %]
-			[% END %]
-			[% SET cols = 4 %][% SET rows = ( totalcats div cols ) + 1 %]
-			
+                        <span class="hint">If none are selected, report will default to configured patrons types</span>
+			[% SET val_array = [ ] %]
+                        [% FOREACH c IN Categories.all %]
+				[% val_array.push(c) %]
+                        [% END %]
+                        [% SET cols = 4 %][% SET rows = ( val_array.size div cols ) + 1 %]
+	
+                        
+			[% SET entry = 1 %][% SET cell = 0 %][% SET newrow = 1 %]
 			<table class="fourby">
-			[% SET entry = 1 %]
-			[% FOREACH c IN Categories.all %]
-				[% IF ( entry - 1 ) mod 4 == '0' %]<tr>[% END %]
+			[% WHILE entry <= val_array.size %]
+				[% IF newrow %]<tr>[% newrow = 0%][% END %]
 				<td>
-				    <label>[% c.description %]:</label>
-                                    <input type="checkbox" name="categorycode" value="[% c.categorycode %]">
+			            <label>[% val_array.$cell.description %]:</label>
+                                    <input type="checkbox" name="categorycode" value="[% val_array.$cell.categorycode %]">
 				</td>
-				[% IF entry mod 4 == '0' %]</tr>[% END %]
+				[% cell = cell + cols %]
+				[% IF cell >= val_array.size %]
+					[% cell = ( cell mod cols ) + 1  %]
+					</tr>
+					[% newrow = 1 %]
+				[% END %]
 				[% entry = entry + 1 %]
-			[% END %]
+                        [% END %]
 			</table>
                     </fieldset>
 
+
+
+
                     <fieldset class="rows">
                         <legend>Exclude LOST statuses</legend>
+
 			[% SET totalcats = 0 %]
                         [% FOREACH c IN Categories.all %]
                                 [% totalcats = totalcats + 1 %]
